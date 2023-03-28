@@ -3,7 +3,8 @@ import {
 	Text,
 	View,
 	Dimensions,
-	Image
+	Image,
+	Button
 } from 'react-native'
 import React from 'react';
 import { PanGestureHandler, GestureHandlerGestureEvent } from 'react-native-gesture-handler';
@@ -57,6 +58,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({ visible }) => {
 	});
 
 	return <>
+		<Button title="Reset" onPress={() => translateY.value = withSpring(0)} color="green" />
 		{visible && <PanGestureHandler onGestureEvent={onGestureEvent}>
 			<Animated.View style={[styles.container, animatedStyle]}>
 				<View style={styles.line} />
