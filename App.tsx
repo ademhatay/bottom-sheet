@@ -10,7 +10,7 @@ const App = () => {
 	return <>
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<Button title="Press me" onPress={() => setVisible(!visible)} />
-			{visible && <BottomSheet />}
+			<BottomSheet visible={visible} />
 		</GestureHandlerRootView>
 	</>
 }

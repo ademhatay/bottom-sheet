@@ -3,44 +3,48 @@ import {
 	Text,
 	View,
 	Dimensions,
+	Image
 } from 'react-native'
-import React, { useRef } from 'react';
-import { PanGestureHandler,GestureHandlerGestureEvent  } from 'react-native-gesture-handler';
+import React from 'react';
+import { PanGestureHandler, GestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedGestureHandler, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-
-
+import movies from '../config/data';
 
 
 const { height } = Dimensions.get('window');
 
-type BottomSheetProps = {
+const SNAP_POINT = 600;
+const MAX_SNAP_POINT = 650;
+const MIN_VELOCITY = 500;
 
+type BottomSheetProps = {
+	visible: boolean;
 }
 
-const BottomSheet: React.FC<BottomSheetProps> = ({ }) => {
+
+const BottomSheet: React.FC<BottomSheetProps> = ({ visible }) => {
 
 
-	const translateY = useSharedValue(0);
+	const translateY = useSharedValue(-SNAP_POINT / 2);
 
 	const onGestureEvent = useAnimatedGestureHandler<GestureHandlerGestureEvent, { startY: number, }>({
 		onStart: (_, ctx) => {
 			ctx.startY = translateY.value;
 		},
-		onActive: (event:any, ctx) => {
+		onActive: (event: any, ctx) => {
 			translateY.value = ctx.startY + event.translationY;
-			console.log(translateY.value);
-			if (translateY.value < -600) {
-				translateY.value = -600;
+			if (translateY.value < -MAX_SNAP_POINT) {
+				translateY.value = -MAX_SNAP_POINT;
 				return
 			}
-			
+
 		},
-		onEnd: () => {
-			const snapPoint = -600;
-			const snapPoint2 = -100;
-			if (translateY.value < snapPoint) {
+		onEnd: (event: any) => {
+			const snapPoint = -SNAP_POINT;
+			const snapPoint2 = SNAP_POINT;
+			if (event.velocityY < MIN_VELOCITY) {
 				translateY.value = withSpring(snapPoint);
-			} else if (translateY.value > snapPoint2) {
+			} else if (event.velocityY > -MIN_VELOCITY) {
 				translateY.value = withSpring(snapPoint2);
 			}
 		},
@@ -48,17 +52,23 @@ const BottomSheet: React.FC<BottomSheetProps> = ({ }) => {
 
 	const animatedStyle = useAnimatedStyle(() => {
 		return {
-		  transform: [{ translateY: translateY.value }],
+			transform: [{ translateY: translateY.value }],
 		};
-	  });
+	});
 
 	return <>
-		<PanGestureHandler onGestureEvent={onGestureEvent}>
+		{visible && <PanGestureHandler onGestureEvent={onGestureEvent}>
 			<Animated.View style={[styles.container, animatedStyle]}>
 				<View style={styles.line} />
-				<Text>BottomSheet</Text>
+				<View style={{ flex: 1, alignItems: 'center' }}>
+					<Image resizeMode='contain' source={{ uri: movies[0].poster }} style={{ width: 300, height: 400 }} />
+					<Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 20 }}>{movies[0].title}</Text>
+					<Text style={{ fontSize: 16, marginTop: 10 }}>{movies[0].year}</Text>
+					<Text style={{ fontSize: 16, marginTop: 10 }}>{movies[0].genre}</Text>
+					<Text style={{ fontSize: 16, marginTop: 10 }}>{movies[0].summary}</Text>
+				</View>
 			</Animated.View>
-		</PanGestureHandler>
+		</PanGestureHandler>}
 	</>
 }
 
