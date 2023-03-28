@@ -28,6 +28,11 @@ const BottomSheet: React.FC<BottomSheetProps> = ({ }) => {
 		},
 		onActive: (event:any, ctx) => {
 			translateY.value = ctx.startY + event.translationY;
+			console.log(translateY.value);
+			if (translateY.value < -600) {
+				translateY.value = -600;
+				return
+			}
 			
 		},
 		onEnd: () => {
